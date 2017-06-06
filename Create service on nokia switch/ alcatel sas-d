@@ -1,0 +1,217 @@
+#!/bin/bash
+
+clear
+
+ echo ""
+ echo -n "Podaj numer VLAN : "
+ read VLAN
+
+ echo ""
+ echo -n "Podaj port uplinkowy : "
+ read UPLINK
+
+  echo -n "Podaj numer portu w stone klienta : "
+ read Port
+
+ echo -n "Czy port w strone klienta dziala w trybie access? [t,n]"
+ read ACCESS
+ #until [ "$ACCESS" == "T" ]||[ "$ACCESS" == "t" ]||[ "$ACCESS" == "N" ]||[ "$ACCESS" == "n" ]; do
+ until [ "$ACCESS" == "t" ] || [ "$ACCESS" == "n" ]; do
+ echo ""
+  echo -n "Czy port w strone klienta dziala w trybie access? [t,n]"
+ read ACCESS
+ done
+
+ echo ""
+ echo -n "Podaj opis portu : "
+ read Desc
+
+ echo ""
+ echo -n "Czy ustawic policer na porcie w strone klienta? [t,n]"
+ read POLICER
+ #until [  "$POLICER" == "T" ]||[ "$POLICER" == "t" ]||[ "$POLICER" == "N" ]||[ "$POLICER" == "n" ]; do
+ until [ "$POLICER" == "t" ] || [ "$POLICER" == "n" ]; do
+ echo ""
+  echo -n "Czy ustawic policer na porcie w strone klienta? [t,n]"
+ read POLICER
+ done
+
+if [ "$POLICER" == "T" ]||[ "$POLICER" == "t" ]; then
+ echo "Podaj wartosc policer w kbps"
+ read WARTOSC_P
+else
+ echo "brak policer"
+fi
+
+
+#if [  [ "$ACCESS" == "T" -o "$ACCESS" == "t" ] -a [ "$POLICER" == "n" -o "$POLICER" == "N" ] ] ; then
+ if [ "$ACCESS" == "t" ] && [ "$POLICER" == "n" ]; then
+ echo ""
+ echo ""
+ echo "--------------Konfiguracja portu 1/1/$Port mode access--------------"
+ echo ""
+ echo " configure port 1/1/$Port"
+ echo "         description \"$Desc\"";
+ echo "         ethernet"
+ echo "                 access"
+ echo "                 exit"
+ echo "                 mtu 9212"
+ echo "         exit"
+ echo "         no shutdown"
+ echo ""
+ echo " info"
+ echo "exit"
+ echo "admin save"
+ echo ""
+ echo ""
+
+
+ echo "--------------Konfiguracja service epipe 40$VLAN --------------"
+ echo ""
+
+ echo ""
+LEN=$(echo ${#VLAN})
+if [ $LEN -lt 4 ]; then
+ echo "configure service epipe 400$VLAN customer 2 svc-sap-type any create"
+else
+ echo "configure service epipe 40$VLAN customer 2 svc-sap-type any create"
+fi
+ echo "         sap 1/1/$UPLINK:$VLAN.* create"
+ echo "         exit"
+ echo "         sap 1/1/$Port create"
+ echo "           statistics"
+ echo "             ingress"
+ echo "               received-count"
+ echo "             exit"
+ echo "           exit"
+ echo "         exit"
+ echo "         no shutdown"
+ echo " info"
+ echo "exit"
+ echo "admin save"
+
+elif  [ "$ACCESS" == "n" ] && [ "$POLICER" == "n" ]; then
+ echo "----------------Konfiguracja portu 1/1/$Port mode trunk---------------"
+ echo ""
+ echo " configure port 1/1/$Port"
+ echo "         description \"$Desc\"";
+ echo "         ethernet"
+ echo "           access"
+ echo "          exit"
+ echo "          encap-type dot1q"
+ echo "          mtu 9212"
+ echo "         exit"
+ echo "         no shutdown"
+ echo " info"
+ echo " exit"
+ echo "admin save"
+
+ echo "--------------Konfiguracja service epipe 40$VLAN port trunk--------------"
+ echo ""
+
+ echo ""
+LEN=$(echo ${#VLAN})
+if [ $LEN -lt 4 ]; then
+ echo "configure service epipe 400$VLAN customer 2 svc-sap-type any create"
+else
+ echo "configure service epipe 40$VLAN customer 2 svc-sap-type any create"
+fi
+ echo "         sap 1/1/$UPLINK:$VLAN.* create"
+ echo "         exit"
+ echo "         sap 1/1/$Port:$VLAN create"
+ echo "           statistics"
+ echo "             ingress"
+ echo "               received-count"
+ echo "             exit"
+ echo "           exit"
+ echo "         exit"
+ echo "         no shutdown"
+ echo " info"
+ echo "exit"
+ echo "admin save"
+
+elif [ "$ACCESS" == "t" ] && [ "$POLICER" == "t" ]; then
+ echo "----------------Konfiguracja portu 1/1/$Port port access---------------"
+ echo ""
+ echo " configure port 1/1/$Port"
+ echo "         description \"$Desc\"";
+ echo "         ethernet"
+ echo "           access"
+ echo "          exit"
+ echo "          mtu 9212"
+ echo "          egress-rate $WARTOSC_P max-burst 1600"
+ echo "         exit"
+ echo "         no shutdown"
+ echo " info"
+ echo " exit"
+ echo "admin save"
+
+ echo "--------------Konfiguracja service epipe 40$VLAN port access--------------"
+ echo ""
+
+ echo ""
+LEN=$(echo ${#VLAN})
+if [ $LEN -lt 4 ]; then
+ echo "configure service epipe 400$VLAN customer 2 svc-sap-type any create"
+else
+ echo "configure service epipe 40$VLAN customer 2 svc-sap-type any create"
+fi
+ echo "         sap 1/1/$UPLINK:$VLAN.* create"
+ echo "         exit"
+ echo "         sap 1/1/$Port create"
+ echo "           statistics"
+ echo "             ingress"
+ echo "               received-count"
+ echo "             exit"
+ echo "           exit"
+ echo "         exit"
+ echo "         no shutdown"
+ echo " info"
+ echo "exit"
+ echo "admin save"
+
+
+elif [ "$ACCESS" == "n" ] && [ "$POLICER" == "t" ]; then
+ echo "----------------Konfiguracja portu 1/1/$Port port access---------------"
+ echo ""
+ echo " configure port 1/1/$Port"
+ echo "         description \"$Desc\"";
+ echo "         ethernet"
+ echo "           access"
+ echo "          exit"
+ echo "          encap-type dot1q"
+ echo "          mtu 9212"
+ echo "          egress-rate $WARTOSC_P max-burst 1600"
+ echo "         exit"
+ echo "         no shutdown"
+ echo " info"
+ echo " exit"
+ echo "admin save"
+
+ echo "--------------Konfiguracja service epipe 40$VLAN port access--------------"
+ echo ""
+
+ echo ""
+LEN=$(echo ${#VLAN})
+if [ $LEN -lt 4 ]; then
+ echo "configure service epipe 400$VLAN customer 2 svc-sap-type any create"
+else
+ echo "configure service epipe 40$VLAN customer 2 svc-sap-type any create"
+fi
+ echo "         sap 1/1/$UPLINK:$VLAN.* create"
+ echo "         exit"
+ echo "         sap 1/1/$Port:$VLAN create"
+ echo "           statistics"
+ echo "             ingress"
+ echo "               received-count"
+ echo "             exit"
+ echo "           exit"
+ echo "         exit"
+ echo "         no shutdown"
+ echo " info"
+ echo "exit"
+ echo "admin save"
+
+else
+ "Wybrales nieprawidlowe dane"
+fi
