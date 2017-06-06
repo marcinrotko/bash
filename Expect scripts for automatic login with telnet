@@ -1,0 +1,15 @@
+#!/usr/bin/expect
+
+set timeout 1
+
+set device [lindex $argv 0]
+spawn telnet $device
+
+expect "Username: "
+send "admin\r"
+set timeout 1
+expect "assword:"
+send "admin\r"
+
+
+interact
