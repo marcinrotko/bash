@@ -1,0 +1,22 @@
+#!/bin/bash
+clear
+echo "Podaj numer portu"
+read Port
+
+echo ""
+echo "Podaj opis portu"
+read Desc
+
+echo "  configure port $Port"
+echo "          description \"$Desc\"";
+echo "          ethernet"
+echo "                  mode access"
+echo "                  access"
+echo "                  exit"
+echo "                  mtu 1594"
+echo "          exit"
+echo "          no shutdown"
+echo ""
+echo "  info"
+echo "exit"
+

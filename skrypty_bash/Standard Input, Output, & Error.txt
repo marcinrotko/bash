@@ -1,0 +1,21 @@
+https://www.youtube.com/watch?v=TsKE50hf4PU
+
+
+#!/bin/bash
+
+echo "Please enter your name:"
+read myname
+echo "You entered: $myname"
+
+
+dev/null - like blackhole
+ls -l  > /dev/null
+ls > file.txt - nadpisuje plik
+ls >> file.txt - dodaje na koniec 
+
+ls /root 2>errors.txt
+cat errors.txt
+ls: nie mo▒na otworzy▒ katalogu /root: Brak dost▒pu
+(standard input=0, standard output=1, error=2)
+nameofstricp 2> errors.txt - mozemy debagowac bledy
+

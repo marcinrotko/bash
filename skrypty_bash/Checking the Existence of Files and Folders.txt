@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ -d ~/myfolder ] #sprawdza czy folder myfolder istnieje w home katalogu (gdybysmy chcieli szukac pliku to [ -f ~/myfile ]
+then
+        echo "The folder exists."
+else
+        echo "The folder does not exist."
+fi
+
+
+https://www.youtube.com/watch?v=u6t19K3HiOs
